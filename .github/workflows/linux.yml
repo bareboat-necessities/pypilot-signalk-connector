@@ -1,0 +1,23 @@
+name: linux
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: pypilot-signalk-connector
+      - uses: actions/checkout@v4
+        with:
+          repository: bareboat-necessities/pypilot-data-model
+          path: pypilot-data-model
+      - name: Configure
+        run: cmake -S pypilot-signalk-connector -B pypilot-signalk-connector/build
+      - name: Build
+        run: cmake --build pypilot-signalk-connector/build --parallel
+      - name: Test
+        run: ctest --test-dir pypilot-signalk-connector/build --output-on-failure
