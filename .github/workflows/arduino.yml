@@ -1,0 +1,22 @@
+name: arduino
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: pypilot-signalk-connector
+      - uses: actions/checkout@v4
+        with:
+          repository: bareboat-necessities/pypilot-data-model
+          path: pypilot-data-model
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install AVR platform
+        run: arduino-cli core install arduino:avr
+      - name: Compile example
+        run: arduino-cli compile --fqbn arduino:avr:mega --libraries pypilot-signalk-connector --libraries pypilot-data-model pypilot-signalk-connector/examples/arduino/SignalKConnectorExample
