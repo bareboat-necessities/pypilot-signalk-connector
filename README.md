@@ -1,6 +1,6 @@
 # pypilot-signalk-connector
 
-Header-only C++11 Signal K connector for pypilot-style data models on Linux and Arduino.
+C++17 Signal K connector for pypilot-style data models on Linux and Arduino.
 
 This project translates Signal K path/value updates into `pypilot-data-model`, formats pypilot data as Signal K deltas, and provides a small Signal K mDNS discovery helper through `pypilot-mdns`.
 
