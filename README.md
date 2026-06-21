@@ -2,7 +2,7 @@
 
 C++17 Signal K connector for pypilot-style data models on Linux and Arduino.
 
-This project translates Signal K path/value updates into `pypilot-data-model`, formats pypilot data as Signal K deltas, and provides a small Signal K mDNS discovery helper through `pypilot-mdns`.
+This project translates Signal K path/value updates into `pypilot-data-model` and formats pypilot data as Signal K deltas. When `pypilot-mdns` is available as a sibling checkout, it also exposes a small Signal K mDNS discovery helper.
 
 It deliberately does not include websocket, HTTP, JWT token storage, TLS, reconnect logic, or a Signal K server runtime. Network transport stays in higher-level daemon/application code.
 
@@ -14,8 +14,15 @@ It deliberately does not include websocket, HTTP, JWT token storage, TLS, reconn
 
 ## Dependencies
 
+Required:
+
 ```text
 pypilot-data-model
+```
+
+Optional:
+
+```text
 pypilot-mdns
 ```
 
@@ -26,6 +33,8 @@ The default CMake sibling layout is:
 ../pypilot-mdns
 ```
 
+A standalone configure without `../pypilot-mdns` succeeds. In that case `PYPILOT_SIGNALK_CONNECTOR_WITH_MDNS` is not defined and the mDNS discovery helper is not exported from the umbrella header.
+
 ## Signal K mDNS discovery
 
 Original Python pypilot discovers Signal K by browsing `_http._tcp.local.` and filtering TXT records for:
@@ -34,7 +43,7 @@ Original Python pypilot discovers Signal K by browsing `_http._tcp.local.` and f
 swname=signalk-server
 ```
 
-This connector exposes that through:
+When `pypilot-mdns` is present, this connector exposes that through:
 
 ```cpp
 pypilot_mdns::PypilotMdns mdns;
@@ -81,6 +90,17 @@ steering.autopilot.engaged                -> ap.enabled
 ```
 
 ## Build
+
+Standalone build:
+
+```bash
+cmake -S . -B build \
+  -DPYPILOT_DATA_MODEL_DIR=../pypilot-data-model/src
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+
+Build with mDNS discovery enabled:
 
 ```bash
 cmake -S . -B build \
