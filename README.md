@@ -2,9 +2,9 @@
 
 C++17 Signal K connector for pypilot-style data models on Linux and Arduino.
 
-This project translates Signal K path/value updates into `pypilot-data-model` and formats pypilot data as Signal K deltas. When `pypilot-mdns` is available as a sibling checkout, it also exposes a small Signal K mDNS discovery helper.
+This project translates Signal K path/value updates into `pypilot-data-model`, parses real Signal K delta-shaped JSON, builds subscribe/unsubscribe/PUT messages, formats outbound pypilot data as Signal K deltas, and provides transport/auth interfaces for websocket and HTTP-token implementations. When `pypilot-mdns` is available as a sibling checkout, it also exposes a Signal K mDNS discovery helper.
 
-It deliberately does not include websocket, HTTP, JWT token storage, TLS, reconnect logic, or a Signal K server runtime. Network transport stays in higher-level daemon/application code.
+The core connector remains transport-neutral. Platform-specific websocket and HTTP implementations should implement `ISignalKWebSocketClient` and `ISignalKHttpClient`; this repo defines the interface, message formats, token store abstraction, reconnect backoff, and parser/formatter logic.
 
 ## Public include
 
@@ -35,6 +35,24 @@ The default CMake sibling layout is:
 
 A standalone configure without `../pypilot-mdns` succeeds. In that case `PYPILOT_SIGNALK_CONNECTOR_WITH_MDNS` is not defined and the mDNS discovery helper is not exported from the umbrella header.
 
+## Implemented connector pieces
+
+```text
+Signal K delta JSON parser
+Signal K path/value application to pypilot-data-model
+Signal K subscribe message builder
+Signal K unsubscribe message builder
+Signal K PUT message builder
+Signal K PUT response success/failure parser
+Memory token store
+HTTP token request interface
+Websocket client interface
+Reconnect/backoff helper
+mDNS discovery result -> endpoint bridge
+pypilot-data-model -> outbound Signal K delta formatter
+real-ish delta fixture tests
+```
+
 ## Signal K mDNS discovery
 
 Original Python pypilot discovers Signal K by browsing `_http._tcp.local.` and filtering TXT records for:
@@ -52,7 +70,8 @@ mdns.begin("pypilot");
 pypilot_signalk_connector::SignalKMdnsDiscovery discovery(mdns);
 pypilot_signalk_connector::SignalKDiscoveryResult result;
 if (discovery.discover(result, 3000)) {
-    // result.host, result.address, result.port
+    pypilot_signalk_connector::SignalKEndpoint endpoint;
+    pypilot_signalk_connector::mdns_result_to_endpoint(result, endpoint);
 }
 ```
 
@@ -61,23 +80,23 @@ if (discovery.discover(result, 3000)) {
 Input path/value mappings:
 
 ```text
-environment.wind.speedApparent      m/s -> wind.apparent.speed_kn
-environment.wind.angleApparent      rad -> wind.apparent.direction_deg
-environment.wind.speedTrue          m/s -> wind.truewind.speed_kn
-environment.wind.angleTrue          rad -> wind.truewind.direction_deg
-navigation.courseOverGroundTrue     rad -> gps.track_deg
-navigation.speedOverGround          m/s -> gps.speed_kn
-navigation.position.latitude        deg -> gps.fix_lat_deg
-navigation.position.longitude       deg -> gps.fix_lon_deg
-steering.rudderAngle                rad -> rudder.angle_deg with pypilot sign
+environment.wind.speedApparent        m/s -> wind.apparent.speed_kn
+environment.wind.angleApparent        rad -> wind.apparent.direction_deg
+environment.wind.speedTrue            m/s -> wind.truewind.speed_kn
+environment.wind.angleTrue            rad -> wind.truewind.direction_deg
+navigation.courseOverGroundTrue       rad -> gps.track_deg
+navigation.speedOverGround            m/s -> gps.speed_kn
+navigation.position.latitude          deg -> gps.fix_lat_deg
+navigation.position.longitude         deg -> gps.fix_lon_deg
+steering.rudderAngle                  rad -> rudder.angle_deg with pypilot sign
 steering.autopilot.target.headingTrue rad -> apb.track_deg
-navigation.headingMagnetic          rad -> imu.heading_lowpass_deg
-navigation.attitude.pitch           rad -> imu.pitch_deg
-navigation.attitude.roll            rad -> imu.roll_deg
-navigation.attitude.yaw             rad -> imu.heading_lowpass_deg
-navigation.rateOfTurn               rad/s -> imu.heading_rate_lowpass_deg_s
-navigation.speedThroughWater        m/s -> water.speed_kn
-navigation.leewayAngle              rad -> water.leeway_deg
+navigation.headingMagnetic            rad -> imu.heading_lowpass_deg
+navigation.attitude.pitch             rad -> imu.pitch_deg
+navigation.attitude.roll              rad -> imu.roll_deg
+navigation.attitude.yaw               rad -> imu.heading_lowpass_deg
+navigation.rateOfTurn                 rad/s -> imu.heading_rate_lowpass_deg_s
+navigation.speedThroughWater          m/s -> water.speed_kn
+navigation.leewayAngle                rad -> water.leeway_deg
 ```
 
 PUT/control paths:
