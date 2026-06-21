@@ -1,8 +1,10 @@
 # pypilot-signalk-connector
 
-Header-only C++11 SignalK connector for pypilot-style data models on Linux and Arduino.
+Header-only C++11 Signal K connector for pypilot-style data models on Linux and Arduino.
 
-This project is a pure translator between SignalK path/value updates and `pypilot-data-model`.  It deliberately does not include websocket, HTTP, JWT token storage, zeroconf, TLS, reconnect logic, or a SignalK server runtime.
+This project translates Signal K path/value updates into `pypilot-data-model`, formats pypilot data as Signal K deltas, and provides a small Signal K mDNS discovery helper through `pypilot-mdns`.
+
+It deliberately does not include websocket, HTTP, JWT token storage, TLS, reconnect logic, or a Signal K server runtime. Network transport stays in higher-level daemon/application code.
 
 ## Public include
 
@@ -10,16 +12,39 @@ This project is a pure translator between SignalK path/value updates and `pypilo
 #include <pypilot_signalk_connector.hpp>
 ```
 
-## Dependency
+## Dependencies
 
 ```text
 pypilot-data-model
+pypilot-mdns
 ```
 
 The default CMake sibling layout is:
 
 ```text
 ../pypilot-data-model/src
+../pypilot-mdns
+```
+
+## Signal K mDNS discovery
+
+Original Python pypilot discovers Signal K by browsing `_http._tcp.local.` and filtering TXT records for:
+
+```text
+swname=signalk-server
+```
+
+This connector exposes that through:
+
+```cpp
+pypilot_mdns::PypilotMdns mdns;
+mdns.begin("pypilot");
+
+pypilot_signalk_connector::SignalKMdnsDiscovery discovery(mdns);
+pypilot_signalk_connector::SignalKDiscoveryResult result;
+if (discovery.discover(result, 3000)) {
+    // result.host, result.address, result.port
+}
 ```
 
 ## Scope from pypilot/signalk.py
@@ -58,7 +83,9 @@ steering.autopilot.engaged                -> ap.enabled
 ## Build
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build \
+  -DPYPILOT_DATA_MODEL_DIR=../pypilot-data-model/src \
+  -DPYPILOT_MDNS_DIR=../pypilot-mdns
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
