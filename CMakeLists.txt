@@ -48,6 +48,19 @@ if(PYPILOT_SIGNALK_CONNECTOR_BUILD_TESTS)
     target_link_libraries(${test_name} PRIVATE pypilot_signalk_connector)
     add_test(NAME ${test_name} COMMAND ${test_name})
   endforeach()
+
+  add_executable(test_delta_json tests/test_delta_json.cpp)
+  target_link_libraries(test_delta_json PRIVATE pypilot_signalk_connector)
+  add_test(NAME test_delta_json COMMAND test_delta_json)
+
+  add_executable(test_transport_and_messages tests/test_transport_and_messages.cpp)
+  target_link_libraries(test_transport_and_messages PRIVATE pypilot_signalk_connector)
+  add_test(NAME test_transport_and_messages COMMAND test_transport_and_messages)
+
+  add_executable(test_outbound_delta tests/test_outbound_delta.cpp)
+  target_link_libraries(test_outbound_delta PRIVATE pypilot_signalk_connector)
+  add_test(NAME test_outbound_delta COMMAND test_outbound_delta)
+
   if(PYPILOT_SIGNALK_CONNECTOR_WITH_MDNS)
     add_executable(test_mdns_discovery_compile tests/test_mdns_discovery_compile.cpp)
     target_link_libraries(test_mdns_discovery_compile PRIVATE pypilot_signalk_connector)
