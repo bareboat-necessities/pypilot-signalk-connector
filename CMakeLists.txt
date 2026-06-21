@@ -5,6 +5,13 @@ option(PYPILOT_SIGNALK_CONNECTOR_BUILD_TESTS "Build tests" ON)
 option(PYPILOT_SIGNALK_CONNECTOR_BUILD_EXAMPLES "Build examples" ON)
 
 set(PYPILOT_DATA_MODEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../pypilot-data-model/src" CACHE PATH "Path to pypilot-data-model src include dir")
+set(PYPILOT_MDNS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../pypilot-mdns" CACHE PATH "Path to pypilot-mdns checkout")
+
+if(EXISTS "${PYPILOT_MDNS_DIR}/CMakeLists.txt")
+  add_subdirectory("${PYPILOT_MDNS_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/pypilot-mdns")
+else()
+  message(FATAL_ERROR "pypilot-mdns checkout not found at ${PYPILOT_MDNS_DIR}")
+endif()
 
 add_library(pypilot_signalk_connector INTERFACE)
 target_include_directories(pypilot_signalk_connector INTERFACE
@@ -12,6 +19,7 @@ target_include_directories(pypilot_signalk_connector INTERFACE
   ${PYPILOT_DATA_MODEL_DIR}
 )
 target_compile_features(pypilot_signalk_connector INTERFACE cxx_std_11)
+target_link_libraries(pypilot_signalk_connector INTERFACE pypilot_mdns)
 
 if(PYPILOT_SIGNALK_CONNECTOR_BUILD_EXAMPLES)
   add_executable(apply_path_value examples/linux/apply_path_value.cpp)
@@ -31,7 +39,8 @@ if(PYPILOT_SIGNALK_CONNECTOR_BUILD_TESTS)
       test_apply_water
       test_apply_put_control
       test_format_delta
-      test_subscription)
+      test_subscription
+      test_mdns_discovery_compile)
     add_executable(${test_name} tests/${test_name}.cpp)
     target_link_libraries(${test_name} PRIVATE pypilot_signalk_connector)
     add_test(NAME ${test_name} COMMAND ${test_name})
