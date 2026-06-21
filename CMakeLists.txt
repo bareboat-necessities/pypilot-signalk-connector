@@ -18,7 +18,7 @@ target_include_directories(pypilot_signalk_connector INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${PYPILOT_DATA_MODEL_DIR}
 )
-target_compile_features(pypilot_signalk_connector INTERFACE cxx_std_11)
+target_compile_features(pypilot_signalk_connector INTERFACE cxx_std_17)
 target_link_libraries(pypilot_signalk_connector INTERFACE pypilot_mdns)
 
 if(PYPILOT_SIGNALK_CONNECTOR_BUILD_EXAMPLES)
