@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 #include "apply_path_value.hpp"
 
 namespace pypilot_signalk_connector {
@@ -134,7 +134,7 @@ private:
 template<typename Real>
 inline size_t apply_signalk_delta_json(const char* json,
                                        SignalKConnector<Real>& connector,
-                                       pypilot_data_model::DataModel<Real>& model,
+                                       ship_data_model::DataModel<Real>& model,
                                        uint64_t now_us) {
     SignalKDeltaParser parser;
     parser.reset(json);
