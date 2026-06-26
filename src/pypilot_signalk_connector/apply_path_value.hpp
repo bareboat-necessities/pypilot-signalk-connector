@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 #include "constants.hpp"
 #include "paths.hpp"
 
@@ -15,9 +15,9 @@ public:
 
     bool apply_number(const char* path,
                       Real value,
-                      pypilot_data_model::DataModel<Real>& model,
+                      ship_data_model::DataModel<Real>& model,
                       uint64_t now_us,
-                      pypilot_data_model::SensorSource source = pypilot_data_model::SensorSource::signalk) {
+                      ship_data_model::SensorSource source = ship_data_model::SensorSource::signalk) {
         last_error_ = "";
 
         if (streq(path, SignalKPath::wind_speed_apparent)) {
@@ -123,7 +123,7 @@ public:
 
     bool apply_put_number(const char* path,
                           Real value,
-                          pypilot_data_model::DataModel<Real>& model,
+                          ship_data_model::DataModel<Real>& model,
                           uint64_t now_us) {
         last_error_ = "";
         if (streq(path, SignalKPath::put_heading_magnetic) || streq(path, SignalKPath::put_heading_true)) {
@@ -136,7 +136,7 @@ public:
 
     bool apply_put_bool(const char* path,
                         bool value,
-                        pypilot_data_model::DataModel<Real>& model,
+                        ship_data_model::DataModel<Real>& model,
                         uint64_t) {
         last_error_ = "";
         if (streq(path, SignalKPath::put_engaged)) {
@@ -149,12 +149,12 @@ public:
 
     bool apply_put_string(const char* path,
                           const char* value,
-                          pypilot_data_model::DataModel<Real>& model,
+                          ship_data_model::DataModel<Real>& model,
                           uint64_t) {
         last_error_ = "";
         if (streq(path, SignalKPath::put_state)) {
-            pypilot_data_model::AutopilotMode mode;
-            if (pypilot_data_model::autopilot_mode_from_name(value, mode)) {
+            ship_data_model::AutopilotMode mode;
+            if (ship_data_model::autopilot_mode_from_name(value, mode)) {
                 model.ap.mode.value = mode;
                 return true;
             }
@@ -169,8 +169,8 @@ private:
     const char* last_error_;
 
     template<typename Setting>
-    void set_source(Setting& setting, pypilot_data_model::SensorSource source) {
-        if (source != pypilot_data_model::SensorSource::none) setting.value = source;
+    void set_source(Setting& setting, ship_data_model::SensorSource source) {
+        if (source != ship_data_model::SensorSource::none) setting.value = source;
     }
 };
 
