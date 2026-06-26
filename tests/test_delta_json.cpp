@@ -2,10 +2,10 @@
 #include <cmath>
 #include <cstring>
 #include <pypilot_signalk_connector.hpp>
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 
 using namespace pypilot_signalk_connector;
-using namespace pypilot_data_model;
+using namespace ship_data_model;
 
 static void add_char(char* out, size_t& pos, char c) { out[pos++] = c; out[pos] = 0; }
 static void add_lit(char* out, size_t& pos, const char* s) { while (*s) add_char(out, pos, *s++); }
