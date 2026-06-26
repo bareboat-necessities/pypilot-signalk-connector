@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <pypilot_signalk_connector.hpp>
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 
-pypilot_data_model::DataModel<> model;
+ship_data_model::DataModel<> model;
 pypilot_signalk_connector::SignalKConnector<> connector;
 
 void setup() {
