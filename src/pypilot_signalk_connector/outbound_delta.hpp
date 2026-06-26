@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 #include "paths.hpp"
 #include "constants.hpp"
 
@@ -28,7 +28,7 @@ inline size_t signalk_append_number_value(char* out,
 template<typename Real>
 inline size_t make_signalk_delta(char* out,
                                  size_t out_size,
-                                 const pypilot_data_model::DataModel<Real>& model,
+                                 const ship_data_model::DataModel<Real>& model,
                                  const char* source_label = "pypilot") {
     if (!out || out_size == 0) return 0;
     int n = snprintf(out, out_size, "{\"context\":\"vessels.self\",\"updates\":[{\"source\":{\"label\":\"%s\"},\"values\":[", source_label ? source_label : "pypilot");
