@@ -6,6 +6,17 @@
 
 namespace pypilot_signalk_connector {
 
+inline bool signalk_autopilot_mode_from_name(const char* name, ship_data_model::AutopilotMode& out) {
+    if (!name) return false;
+    if (streq(name, "compass")) out = ship_data_model::AutopilotMode::compass;
+    else if (streq(name, "gps")) out = ship_data_model::AutopilotMode::gps;
+    else if (streq(name, "nav")) out = ship_data_model::AutopilotMode::nav;
+    else if (streq(name, "wind")) out = ship_data_model::AutopilotMode::wind;
+    else if (streq(name, "true_wind") || streq(name, "trueWind")) out = ship_data_model::AutopilotMode::true_wind;
+    else return false;
+    return true;
+}
+
 template<typename Real = float>
 class SignalKConnector {
 public:
@@ -154,7 +165,7 @@ public:
         last_error_ = "";
         if (streq(path, SignalKPath::put_state)) {
             ship_data_model::AutopilotMode mode;
-            if (ship_data_model::autopilot_mode_from_name(value, mode)) {
+            if (signalk_autopilot_mode_from_name(value, mode)) {
                 model.ap.mode.value = mode;
                 return true;
             }
