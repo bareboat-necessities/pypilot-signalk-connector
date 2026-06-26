@@ -1,9 +1,9 @@
 #include <iostream>
 #include <pypilot_signalk_connector.hpp>
-#include <pypilot_data_model.hpp>
+#include <ship_data_model.hpp>
 
 int main() {
-    pypilot_data_model::DataModel<> model;
+    ship_data_model::DataModel<> model;
     pypilot_signalk_connector::SignalKConnector<> connector;
     connector.apply_number(pypilot_signalk_connector::SignalKPath::wind_speed_apparent,
                            5.144456333854638f,
